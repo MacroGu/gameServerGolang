@@ -8,8 +8,8 @@ import (
 type EchoServer struct {
 }
 
-func (server *EchoServer) Handle(request string) string {
-	return "ECHO:" + request
+func (server *EchoServer) Handle(method, request string) *Response {
+	return &Response{"OK","ECHO: " + request}
 }
 
 func (server *EchoServer) Name() string  {
@@ -17,7 +17,9 @@ func (server *EchoServer) Name() string  {
 }
 
 func TestIpc(t *testing.T)  {
-	server := NewIpcServer(&EchoServer{})
+	echo := EchoServer{}
+	fmt.Println("",echo)
+	server := NewIpcServer(&echo)
 
 	client1 := NewIpcClient(server)
 	client2 := NewIpcClient(server)
@@ -29,7 +31,7 @@ func TestIpc(t *testing.T)  {
 		fmt.Println("err1 or err2 is not nil")
 	}
 
-	if resp1.p != "ECHO:From Client1" || resp2 != "ECHO:From Client2" {
+	if resp1.Body != "ECHO:From Client1" || resp2.Body != "ECHO:From Client2" {
 		t.Error("IpcClient.Call failed. resp1:", resp1, "resp2: ", resp2)
 	}
 
